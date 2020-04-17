@@ -1,0 +1,586 @@
+//BrowserSetup
+
+package Browser_configuration;
+import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.ie.InternetExplorerDriver;
+public class browserSetup {
+	public static WebDriver driver;
+	
+	public static void Browser1() {
+		
+		
+		System.out.println("Enetr the number to select the Browser");
+		System.out.println("1 : Chrome \n2 : Internet Explorer \n3 : Firefox");
+		Scanner sc=new Scanner(System.in);
+		String Browser;
+		Browser=sc.nextLine();
+		switch(Browser){
+			case "1":
+				System.setProperty("webdriver.chrome.driver",".\\Driver\\chromedriver.exe" );
+				driver= new ChromeDriver();
+				break;
+			case "2":
+				System.setProperty("webdriver.IE.driver",".\\Driver\\IEDriverServer.exe" );
+				driver= new InternetExplorerDriver();
+				break;
+			default:
+				System.setProperty("webdriver.gecko.driver",".\\Driver\\gecko.exe" );
+				driver= new FirefoxDriver();
+				break;
+				}
+			driver.manage().window().maximize();
+			driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
+		}
+	
+	
+	
+	public static void navigate(String URL) {
+		driver.navigate().to(URL);
+	}
+
+}
+
+
+
+
+//locaters
+
+
+package Locaters;
+
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import Browser_configuration.browserSetup;
+
+public class locaters extends browserSetup{
+	
+	
+	
+	//Declare the webElement globally
+	public static WebElement element;
+	public static WebDriverWait wait = new WebDriverWait(driver, 20);
+	
+	/**Here we are storing the search box path in element variable
+	 *   
+	 * @return element
+	 */
+	public static WebElement searchTxt() {
+		element= driver.findElement(By.xpath("//input[@id='search']"));
+		return element;
+	}
+	
+	
+	
+	/**Here we are storing the search button path in element variable
+	 *   
+	 * @return element
+	 */
+	public static WebElement searchClick() {
+		element= driver.findElement(By.xpath("//input[@name='submit-search']"));
+		return element;
+	}
+	
+	
+	
+	/**Here we are storing the webElement through xpath for list box in element variable
+	 *   
+	 * @return element 
+	 */
+	public static WebElement selectHighToLow() {
+		element= driver.findElement(By.xpath("//div[@class='pmpSearch_sort_block clearfix']/div/div/a[2]"));
+		return element;
+	}
+	
+	
+	
+	/**Here we are storing the webElement through xpath for High to Low in element variable
+	 *   
+	 * @return element 
+	 */
+	public static WebElement selectHighToLow1() {
+		element= driver.findElement(By.xpath("//div[@class='sortBy_block fl']/div/ul/li[5]/a[@rel='Price High-Low']"));
+		return element;
+	}
+	
+	
+	
+	/**Here we are storing the webElement through xpath for selecting first sort  in element variable
+	 *Here explicitly wait is Used to wait until visibility of first element after sorted to select that option
+	 * @return element 
+	 */
+	public static WebElement selectFirstItem() {
+		
+		wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@class='prod_nameBlock']//p[@rel='/product/prd-3817223/mens-nick-graham-black-shawl-houndstooth-32-tuxedo.jsp?prdPV=1']")));
+		
+		element= driver.findElement(By.xpath("//div[@class='prod_nameBlock']//p[@rel='/product/prd-3817223/mens-nick-graham-black-shawl-houndstooth-32-tuxedo.jsp?prdPV=1']"));
+		return element;
+	}
+	
+	
+	/**Here we are storing the webElement through xpath for selecting tuxedo size in element variable
+	 *Here explicitly wait is Used to wait until page is loaded. 
+	 *
+	 * @return element 
+	 */
+	public static WebElement selectSize() {
+		 
+		wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@class='bv_button_component_container']//button[text()='Write a review ']")));
+		//driver.manage().timeouts().implicitlyWait(50, TimeUnit.SECONDS);
+		
+		element= driver.findElement(By.xpath("//select[@id='size-dropdown']"));
+		return element;
+	}
+	
+	
+	/**Here we are storing the webElement through xpath for selecting Size "44R 37" in element variable
+	 *Here explicitly wait is Used to wait until page is loaded. 
+	 *
+	 * @return element 
+	 */
+	public static WebElement selectSize1() {
+		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+		
+		element= driver.findElement(By.xpath("//select[@id='size-dropdown']//option[@value='44R 37']"));
+		return element;
+	}
+	
+	
+	public static WebElement Option() {
+		element= driver.findElement(By.xpath("//div[@id='container']/div[3]/div[1]/div[2]/div[2]/div[4]/div[1]/div[6]/div/div[2]/div/div/ul/li[3]"));
+		return element;
+	}
+	public static WebElement AddToCart() {
+		element= driver.findElement(By.id("addtobagID"));
+		return element;
+	}
+	public static WebElement fromCart() {
+		element= driver.findElement(By.xpath("//a[@id='tr_phase2_ShoppingBg']/span[@class='number-items boss-number-items nonzero-items']"));
+		return element;
+	}
+	
+
+}
+
+
+// Home 
+
+
+package Home;
+
+import java.io.IOException;
+
+import org.junit.Assert;
+import org.openqa.selenium.WebDriver;
+import org.testng.Reporter;
+
+import Browser_configuration.browserSetup;
+import Locaters.locaters;
+import XlReadWrite.writeToXlFile;
+
+public class Home extends browserSetup{//to extends the properties of webDriver 
+	// This constructor is derived for webDriver 
+	public Home(WebDriver driver) {
+		this.driver=driver;
+	}
+	
+	
+	/** This method  is used for sending "Tuxedo" keys into the Search box  
+	 *  And clicking the search button
+	 *  
+	 */
+	public static void searchText(String search) {
+		locaters.searchTxt().sendKeys(search);           //sending "Tuxedo" keys
+		locaters.searchClick().click();                  //clicking the search button
+		
+	}
+	
+	
+	
+	
+	/**The method Selecting is used for "Selecting How To Low price" and "sort according to it"
+	 *
+	 */
+	 public static void selectHighToLow() {
+		locaters.selectHighToLow().click();					//Selecting How To Low price
+		locaters.selectHighToLow1().click();				//sort according to it
+	}
+	
+	 
+	 
+	/**This method is created for Selecting first item of the sort result.
+	 *
+	 */
+	public static void selectFirstItem() {
+		
+		locaters.selectFirstItem().click();
+	}
+	
+	
+	/**This method is used for clicking "Please select size" and Select size of the "tuxedo" .
+	 * 
+	 */
+	public static void selectSize() {
+		locaters.selectSize().click();					//Select size of texudo
+		locaters.selectSize1().click();
+	}
+	
+	
+	/**This method is used to increase the quantity and click Add to cart button 
+	 * 
+	 */
+	public static void AddToCart() {
+		locaters.Option().click();						//increase the Quantity
+		locaters.AddToCart().click();					//clicking add to cart button
+	}
+	
+	
+	
+	/**This method is for get text from cart and store the value
+	 *
+	 * @return s
+	 */
+	public static String fromCart() {
+		String S=locaters.fromCart().getText();
+		return S;
+		
+	}
+	/**This method is used to assert the "2" value is present in the cart. 
+	 * 
+	 * @throws Exception
+	 */
+	public static void aasert1() throws Exception {
+		String s= fromCart();
+		String ExpectedResult = "2";
+		try {
+			Assert.assertTrue((ExpectedResult.equals(s))?true:false);
+			System.out.println("Pass");
+			Reporter.log("Pass");
+			writeToXlFile.write(0,1,"Pass");
+		}catch(AssertionError e) {
+			System.out.println("Fail");
+			Reporter.log("Fail");
+			writeToXlFile.write(0,1,"Fail");
+		}
+	}
+
+}
+
+
+
+//testng file
+
+
+
+package TestCase;
+
+import org.testng.annotations.Test;
+
+import Browser_configuration.browserSetup;
+import Home.Home;
+import Locaters.locaters;
+import ScreenShots.screenShot;
+import XlReadWrite.readFromXlFile;
+//import pageObjects.Readfromxl;
+
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.BeforeTest;
+
+import java.io.IOException;
+
+
+import org.testng.annotations.AfterTest;
+
+
+
+public class TestCase extends browserSetup {
+  @Test(dataProvider = "dp")
+  public void f(String search,String Search1) throws Exception {
+
+	  Home.searchText(search);
+	  Home.selectHighToLow();
+	  
+	  Home.selectFirstItem();	//Thread.sleep(3000); Explicit Wait Used in Locators seelectFirstItem method
+	 
+	  Home.selectSize();	    //Thread.sleep(5000); Explicit Wait Used in Locators selectSize method
+	 
+	 Home.AddToCart();
+						// Thread.sleep(3000);
+	 screenShot.takeSnapShot();
+	 Home.aasert1();
+	  
+	 
+  }
+
+  
+  
+  
+  
+  @DataProvider
+  public Object dp() throws Exception {
+	  readFromXlFile objExcelFile =new readFromXlFile() ;
+		String filePath = System.getProperty("user.dir");
+		Object[][] testObjArray= new Object[1][1];
+		 testObjArray=objExcelFile.readExcel(filePath, "Excel.xlsx","Sheet1");
+	//	System.out.println(testObjArray);
+		return testObjArray;
+  }
+
+  @BeforeTest
+  public void beforeTest() {
+	  browserSetup.Browser1();
+	  browserSetup.navigate("https://www.kohls.com/");
+	  
+  }
+
+  /*@AfterTest
+  public void afterTest() {
+	  driver.close();
+  }*/
+
+}
+package TestCase;
+
+import org.testng.annotations.Test;
+
+import Browser_configuration.browserSetup;
+import Home.Home;
+import Locaters.locaters;
+import ScreenShots.screenShot;
+import XlReadWrite.readFromXlFile;
+//import pageObjects.Readfromxl;
+
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.BeforeTest;
+
+import java.io.IOException;
+
+
+import org.testng.annotations.AfterTest;
+
+
+
+public class TestCase extends browserSetup {
+  @Test(dataProvider = "dp")
+  public void f(String search,String Search1) throws Exception {
+
+	  Home.searchText(search);
+	  Home.selectHighToLow();
+	  
+	  Home.selectFirstItem();	//Thread.sleep(3000); Explicit Wait Used in Locators seelectFirstItem method
+	 
+	  Home.selectSize();	    //Thread.sleep(5000); Explicit Wait Used in Locators selectSize method
+	 
+	 Home.AddToCart();
+						// Thread.sleep(3000);
+	 screenShot.takeSnapShot();
+	 Home.aasert1();
+	  
+	 
+  }
+
+  
+  
+  
+  
+  @DataProvider
+  public Object dp() throws Exception {
+	  readFromXlFile objExcelFile =new readFromXlFile() ;
+		String filePath = System.getProperty("user.dir");
+		Object[][] testObjArray= new Object[1][1];
+		 testObjArray=objExcelFile.readExcel(filePath, "Excel.xlsx","Sheet1");
+	//	System.out.println(testObjArray);
+		return testObjArray;
+  }
+
+  @BeforeTest
+  public void beforeTest() {
+	  browserSetup.Browser1();
+	  browserSetup.navigate("https://www.kohls.com/");
+	  
+  }
+
+  /*@AfterTest
+  public void afterTest() {
+	  driver.close();
+  }*/
+
+}
+
+
+
+
+
+// taking ScreenShot
+
+import java.io.File;
+import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+
+import Locaters.locaters;
+
+public class screenShot extends locaters  {
+ public static void takeSnapShot() throws Exception
+	    {
+		  wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("addtobagID")));
+		 String fileWithpath=System.getProperty("user.dir")+"\\SnapShots\\result.png";
+	  	  //convert Web driver object to TakeScreenShot
+	  	  TakesScreenshot scrShot=((TakesScreenshot)driver);
+	  	  //call getScreenshotAs method to create image file 
+	  	  File SrcFile=scrShot.getScreenshotAs(OutputType.FILE);
+	  	  File DestFile=new File(fileWithpath);
+	  	  FileUtils.copyFile(SrcFile, DestFile);
+	  	  
+	  	  
+	    }
+}
+
+
+//Read From Xl File
+
+package XlReadWrite;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Iterator;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+public class readFromXlFile {
+	public static Object[][] readExcel(String filePath,String fileName,String sheetName) throws Exception{
+		String[][] tabArray=null;
+		//create an object of file class to open xlsx file 
+		File file = new File(filePath+"\\"+fileName);
+		
+		// create an object of fileinputstream class to read xlsx file 
+		FileInputStream inputStream=new FileInputStream(file);
+		Workbook TestDataWorkbook= null;
+		
+		//find the file extension by splitting file name in sub string and getting only extension name
+		String fileExtensionName= fileName.substring(fileName.indexOf("."));
+		
+		//Check condition if the file is xlsx file
+		if(fileExtensionName.equals(".xlsx")) {
+			//if it is xlsx file then create object XSSFWorkbook class
+			TestDataWorkbook =new XSSFWorkbook(inputStream);
+		}
+		
+		
+		//Check condition if the file is xls file
+		else if(fileExtensionName.equals(".xls")) {
+			//if it is xls file then create object HSSFWorkbook class
+			TestDataWorkbook =new HSSFWorkbook(inputStream);
+		}
+		
+		
+		//read sheet inside the workbook by its name
+		Sheet TestDataSheet = TestDataWorkbook.getSheet(sheetName);
+		int rowCount=TestDataSheet.getLastRowNum()-TestDataSheet.getFirstRowNum();
+		int ci,cj;
+		ci=0;                      
+		
+		
+		//iterate through each row one by one 
+		Iterator<Row>rowIterator=TestDataSheet.iterator();
+		while(rowIterator.hasNext()) {
+			cj= 0;
+			Row row=rowIterator.next();
+			tabArray = new String[rowCount+1][row.getLastCellNum()];
+			//for each row, iterate through a1 the column
+			Iterator<Cell> cellIterator= row.cellIterator();
+			while(cellIterator.hasNext()) {
+				Cell cell=cellIterator.next();
+				tabArray[ci][cj]=cell.getStringCellValue();
+				cj++;
+			}
+			ci++;
+			
+		}
+		inputStream.close();
+		return tabArray;
+		
+	}
+
+}
+
+
+
+
+//Write to Xl file
+
+
+
+package XlReadWrite;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+public class writeToXlFile {
+	static String filePath=System.getProperty("user.dir")+"\\Excel.xlsx";
+	public static void write(int row,int col,String a)throws IOException{ 
+		 try {
+	            FileInputStream file = new FileInputStream(filePath);
+
+	            XSSFWorkbook workbook = new XSSFWorkbook(file);
+	            XSSFSheet sheet = workbook.getSheetAt(0);
+	            Cell cell = null;
+
+	            //Retrieve the row and check for null
+	            XSSFRow sheetrow = sheet.getRow(row);
+	            if(sheetrow == null){
+	                sheetrow = sheet.createRow(row);
+	            }
+	            //Update the value of cell
+	            cell = sheetrow.getCell(col);
+	            if(cell == null){
+	                cell = sheetrow.createCell(col);
+	            }
+	            cell.setCellValue(a);
+
+	            file.close();
+
+	            FileOutputStream outFile =new FileOutputStream(new File(filePath));
+	            workbook.write(outFile);
+	            outFile.close();
+
+	        } catch (FileNotFoundException e) {
+	            e.printStackTrace();
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	    }
+
+}
+
+
+
+
