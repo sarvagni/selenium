@@ -1,0 +1,306 @@
+//browserSetup
+
+
+import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.ie.InternetExplorerDriver;
+
+public class Browser {
+		public static WebDriver driver;
+		public static void Browser1() {
+			System.out.println("Enetr the number to select the Browser");
+			System.out.println("1 : Chrome \n2 : Internet Explorer \n3 : Firefox");
+			Scanner sc=new Scanner(System.in);
+			String Browser;
+			Browser=sc.nextLine();
+			switch(Browser){
+			case "1":
+				System.setProperty("webdriver.chrome.driver",".\\Driver\\chromedriver.exe" );
+				driver= new ChromeDriver();
+				break;
+			case "2":
+				System.setProperty("webdriver.IE.driver",".\\Driver\\IEDriverServer.exe" );
+				driver= new InternetExplorerDriver();
+				break;
+			default:
+				System.setProperty("webdriver.gecko.driver",".\\Driver\\gecko.exe" );
+				driver= new FirefoxDriver();
+				break;
+			}
+			driver.manage().window().maximize();
+			driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
+		}
+	 public static void navigate(String URL) {
+		 driver.navigate().to(URL);
+	 }
+
+}
+
+
+
+//Home Page
+
+
+import java.io.IOException;
+
+import org.junit.Assert;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.Select;
+import org.testng.Reporter;
+
+import Browser_configuration.Browser;
+import Locaters.locaters;
+
+public class Home extends Browser {
+	public Home(WebDriver driver) {
+		this.driver=driver;
+	}
+	// This action1 method moves cursor to the whale watching 
+	public static void action1() {
+		Actions a=new Actions(driver);
+		a.moveToElement(locaters.whaleWatching(driver)).build().perform();
+	}
+    public static boolean whaleWhatching() throws Exception 
+    {
+      String s= locaters.whaleWatching(driver).getText();
+      boolean b;
+      s=s.substring(0,14);
+      String s1="whale watching";
+      b=((s1.equals(s))?true:false);    
+      return b;
+     }
+    public static void BeforePlane() {
+    	locaters.BeforePlan(driver).click();
+    }
+    public static void PlaneOfCruise() throws Exception {
+    	locaters.PlanofCruise(driver).click();
+    	Thread.sleep(2000);
+    	locaters.PlanofCruiseClose(driver).click();
+    }
+    public static void clickShips() {
+    	locaters.ships(driver).click();
+    }
+    public static void clickrapsody() {
+    	locaters.rapsody(driver).click();
+    }
+    public static void clickDeckPlans() {
+    	locaters.deckPlans(driver).click();
+    }
+    public static void drag() {
+    	Select Drag=new Select(locaters.Drag(driver));
+    	Drag.selectByVisibleText("Deck Eight");
+    }
+    public static void action2() {
+		Actions a=new Actions(driver);
+		a.moveToElement(locaters.royalSute(driver)).build().perform();
+	}
+    public static boolean royalSute() throws Exception 
+    {
+      String s= locaters.royalSute(driver).getText();
+      boolean b;
+      s=s.substring(0,10);
+      System.out.println(s);
+      String s1="Royal Suit";
+      b=((s1.equals(s))?true:false);    
+      System.out.println(b);
+      return b;
+     }
+    public static void assertWhaleandRoyal(boolean a,boolean b) throws Exception {
+    	try {
+    	Assert.assertTrue((a && b)?true:false);
+    	System.out.println("Pass");
+    	 Reporter.log("This Application meet my requirements");
+    	 writeToExcel.write(0, 0,"This Application meet my requirements");
+    	}catch(AssertionError e) {
+    		System.out.println("Fail");
+    		Reporter.log("This Application does not meet my requirements");
+    		 writeToExcel.write(0, 0,"This Application does not meet my requirements");
+    	}
+    	
+    }  
+         
+}
+
+//Write To Xl File
+
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+public class writeToExcel {
+	static String filePath=System.getProperty("user.dir")+".\\Excel.xlsx";
+	public static void write(int row,int col,String a)throws IOException{ 
+		 try {
+	            FileInputStream file = new FileInputStream(filePath);
+
+	            XSSFWorkbook workbook = new XSSFWorkbook(file);
+	            XSSFSheet sheet = workbook.getSheetAt(0);
+	            Cell cell = null;
+
+	            //Retrieve the row and check for null
+	            XSSFRow sheetrow = sheet.getRow(row);
+	            if(sheetrow == null){
+	                sheetrow = sheet.createRow(row);
+	            }
+	            //Update the value of cell
+	            cell = sheetrow.getCell(col);
+	            if(cell == null){
+	                cell = sheetrow.createCell(col);
+	            }
+	            cell.setCellValue(a);
+
+	            file.close();
+
+	            FileOutputStream outFile =new FileOutputStream(new File(filePath));
+	            workbook.write(outFile);
+	            outFile.close();
+
+	        } catch (FileNotFoundException e) {
+	            e.printStackTrace();
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	    }
+
+}
+
+
+//locaters
+
+
+package Locaters;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+public class locaters {
+	//public static WebDriver driver;
+	public static WebElement element;
+	public static WebElement whaleWatching(WebDriver driver ) {
+		element =driver.findElement(By.xpath("//div[@id='textWithUI-262899300']/div/div/a"));
+		return element;
+	}
+	public static WebElement BeforePlan(WebDriver driver ) {
+		element =driver.findElement(By.xpath("//*[@id='rciHeaderOpenSidenav']/figure"));
+		return element;
+	}
+	public static WebElement PlanofCruise(WebDriver driver ) {
+		element =driver.findElement(By.xpath("//a[@id='rciHeaderSideNavMenu-1']/span"));
+		return element;
+	}
+	public static WebElement PlanofCruiseClose(WebDriver driver ) {
+		element =driver.findElement(By.xpath("//button[@id='rciHeaderCloseSidenav']/figure"));
+		return element;
+	}
+	
+	public static WebElement ships(WebDriver driver ) {
+		element =driver.findElement(By.id("rciHeaderMenuItem-2"));
+		return element;
+	}
+	public static WebElement rapsody(WebDriver driver ) {
+		element =driver.findElement(By.xpath("//a[@href='/cruise-ships/rhapsody-of-the-seas']/div/figcaption"));
+		return element;
+	}
+	public static WebElement deckPlans(WebDriver driver ) {
+		element =driver.findElement(By.xpath("//a[@href='/cruise-ships/rhapsody-of-the-seas/deck-plans/1896/BD']/div/div/div"));
+		return element;
+	}
+	public static WebElement Drag(WebDriver driver ) {
+		element =driver.findElement(By.id("deckDropdown"));
+		return element;
+	}
+	public static WebElement royalSute(WebDriver driver ) {
+		element =driver.findElement(By.xpath("//div[@id='deck-plans-template']/section/section[2]/section[1]/div[2]/section[5]/h4"));
+		return element;
+	}
+	
+
+
+}
+
+
+//Taking ScreenShots
+
+import java.io.File;
+
+import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+
+
+public class ScreenShot {
+	  public static void takeSnapShot(WebDriver webdriver,int i) throws Exception
+	    {
+		 String fileWithpath=System.getProperty("user.dir")+"\\SnapShots\\result"+i+".png";
+	  	  //convert Web driver object to TakeScreenShot
+	  	  TakesScreenshot scrShot=((TakesScreenshot)webdriver);
+	  	  //call getScreenshotAs method to create image file 
+	  	  File SrcFile=scrShot.getScreenshotAs(OutputType.FILE);
+	  	  File DestFile=new File(fileWithpath);
+	  	  FileUtils.copyFile(SrcFile, DestFile);
+	  	  
+	  	  
+	    }
+
+}
+
+//testNG File
+
+
+
+import org.testng.annotations.Test;
+
+import Browser_configuration.Browser;
+import Home.Home;
+import Screen.ScreenShot;
+
+import org.testng.annotations.BeforeTest;
+
+public class Testcase extends Browser {
+  @Test
+  public void f() throws Exception {
+	  boolean a, b;
+	  a= Home.whaleWhatching();
+	  Home.action1();
+	  ScreenShot.takeSnapShot(driver, 1);
+	  Home.BeforePlane();
+	  Thread.sleep(2000);
+	  Home.PlaneOfCruise();
+	  Home.clickShips();
+	  Home.clickrapsody();
+	  Thread.sleep(2000);
+	  Home.clickDeckPlans();
+	  Home.drag();
+	  Thread.sleep(5000);
+	  Home.action2();
+	  ScreenShot.takeSnapShot(driver, 2);
+	  b = Home.royalSute();
+	  Home.assertWhaleandRoyal(a, b);
+	  //driver.close();
+  }
+  @BeforeTest
+  public void beforeTest() {
+	  Browser.Browser1();
+	  Browser.navigate("https://www.royalcaribbean.com/alaska-cruises");
+	
+  }
+
+}
+
+
