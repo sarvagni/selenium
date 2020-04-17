@@ -1,0 +1,264 @@
+//browserSetup
+
+import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.ie.InternetExplorerDriver;
+
+public class driverSetup {
+	public static WebDriver driver;
+	public static void setup()
+	{
+		System.out.println("Enetr the browser you want to run:");
+		System.out.println("1.Chrome\n 2.IEBrowser\n 3.FireFox");
+		Scanner sc =new Scanner(System.in);
+		int ch= sc.nextInt();
+		switch(ch) {
+		 //check if parameter passed as 'chrome'
+		//set path to chromedriver.exe
+		case 1:
+			System.setProperty("webdriver.chrome.driver",".\\Drivers\\chromedriver.exe");
+			driver=new ChromeDriver();
+			break;
+			//check if parameter passed as 'iedriver'
+			//set path to IEDriverserver.exe
+		case 2:
+			System.setProperty("webdriver.ie.driver", ".\\Drivers\\IEDriverServer.exe");
+			driver=new InternetExplorerDriver();
+			break;
+			//if parameter passed from TestNG is not ,matching
+			//create firefox instance
+		default :
+			System.setProperty("webdriver.gecko.driver", ".\\Drivers\\geckodriver.exe");
+			driver=new FirefoxDriver();
+			break;
+			}
+		driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);	
+	}
+	
+	//create class to pass url to browser
+	public static void Navigate(String Url) {
+		driver.navigate().to(Url);
+		
+	}
+
+}
+
+
+//locaters
+
+
+package locators;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import Browser_cofiguration.driverSetup;
+
+public class Loc1 extends driverSetup{
+	public static WebElement element;
+	public static WebElement  models()
+	{
+		element=driver.findElement(By.xpath("//div[@class='tab-bar tw-flex-1']/div[1]/div[1]/div[1]/a"));
+		return element;
+	}
+	
+	public static WebElement  five()
+	{
+		element=driver.findElement(By.xpath("//div[@id=\"the-top-navigation\"]/div/div/div/div[1]/div/div[1]/div[2]/div/div/div/div/div[1]/div/nav/div/div/div[3]/a"));
+		return element;
+	}
+	public static WebElement  sedan()
+	{
+		element=driver.findElement(By.xpath("//div[@class='enhanced-model-card tw-relative tw-p-300 tw-mb-200 tw-mt-200 tw-relative tw-bg-white hover-out enhanced-model-card-small']/div[1]/img[1]"));
+		return element;
+	}
+	public static WebElement  maxOutput()
+	{
+		element=driver.findElement(By.xpath("//div[@class='ds2-table-element']/table/tbody/tr[3]/td[2]/div/p"));
+		return element;
+	}
+	
+
+}
+
+
+
+//home page
+
+
+package home_Page;
+
+import org.openqa.selenium.interactions.Actions;
+import org.testng.Assert;
+import org.testng.Reporter;
+
+import Browser_cofiguration.driverSetup;
+import excel.WriteToXl;
+import locators.Loc1;
+import screenShot.Screen;
+
+public class Home_Class extends driverSetup{
+	public static void T1() throws InterruptedException
+	{
+		Loc1.models().click();
+		Loc1.five().click();
+		Thread.sleep(5000);
+	}
+	public static void T2() {
+		Actions a=new Actions(driver);
+		a.doubleClick(Loc1.sedan()).build().perform();
+	}
+	public static String T3() throws Exception{
+	
+		String s1=Loc1.maxOutput().getText();
+		s1=s1.substring(0,3);
+		Actions a1=new Actions(driver);
+		a1.moveToElement(Loc1.maxOutput()).build().perform();
+		Screen.takeSnapShot(System.getProperty("user.dir")+"\\SnapShot\\result2.png");
+		//System.out.println(s1);
+		return s1;
+  }
+	public static void assert1() throws Exception {
+		String expected1="195";
+		try {
+			String s2=T3();
+			System.out.println(s2);
+			Assert.assertEquals(s2,expected1);
+			System.out.println("pass");
+			Reporter.log("The value 195 is present");
+			WriteToXl.write(1, 0, "pass");
+		}catch(AssertionError e)
+		{
+			System.out.println(e);
+			Reporter.log("The value 195 is not present");
+			WriteToXl.write(1, 0, "Fail");
+			
+		}
+	
+	}
+	
+}
+
+
+
+
+// test case
+
+
+
+package testCase;
+
+import org.testng.annotations.Test;
+
+import Browser_cofiguration.driverSetup;
+import home_Page.Home_Class;
+import screenShot.Screen;
+
+import org.testng.annotations.BeforeTest;
+
+public class BMW extends driverSetup{
+  @Test
+  public void f() throws Exception {
+	  //System.out.println();
+	  Home_Class.T1();
+	  Home_Class.T2();
+	  Screen.takeSnapShot(System.getProperty("user.dir")+"\\SnapShot\\result1.png");
+	  Home_Class.T3();
+	  Home_Class.assert1();
+  }
+  @BeforeTest
+  public void beforeTest() {
+	  driverSetup.setup();
+	  driverSetup.Navigate("https://www.bmw.in/en/index.html");
+  }
+
+}
+
+
+
+//Write to xl
+
+
+
+package excel;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+public class WriteToXl {
+       static String filePath=System.getProperty("user.dir")+".\\BMW.xlsx";
+       public static void write(int row,int col,String a)throws IOException{ 
+               try {
+                   FileInputStream file = new FileInputStream(filePath);
+
+                   XSSFWorkbook workbook = new XSSFWorkbook(file);
+                   XSSFSheet sheet = workbook.getSheetAt(0);
+                   Cell cell = null;
+
+                   //Retrieve the row and check for null
+                   XSSFRow sheetrow = sheet.getRow(row);
+                   if(sheetrow == null){
+                       sheetrow = sheet.createRow(row);
+                   }
+                   //Update the value of cell
+                   cell = sheetrow.getCell(col);
+                   if(cell == null){
+                       cell = sheetrow.createCell(col);
+                   }
+                   cell.setCellValue(a);
+
+                   file.close();
+
+                   FileOutputStream outFile =new FileOutputStream(new File(filePath));
+                   workbook.write(outFile);
+                   outFile.close();
+
+               } catch (FileNotFoundException e) {
+                   e.printStackTrace();
+               } catch (IOException e) {
+                   e.printStackTrace();
+               }
+           }
+
+}
+
+
+//takeScreenShot
+
+
+package screenShot;
+
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+
+import Browser_cofiguration.driverSetup;
+
+public class Screen extends driverSetup {
+	public static void takeSnapShot(String filepath) throws IOException
+	{
+		File src=((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+		FileUtils.copyFile(src,new File(filepath));
+
+	}
+
+}
+
+
+
