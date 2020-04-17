@@ -1,0 +1,332 @@
+//Applications.properties
+
+browser=chrome
+baseUrl=https://www.phptravels.net/public/amadeus/
+
+
+//homepage 
+
+package Applicationmain;
+import java.io.IOException;
+
+import org.openqa.selenium.WebDriver;
+
+import BrowserSetup.Browsersetup;
+import Locaters.locaters;
+import readXl.readFromXL;
+import readXl.writeToXl;
+
+public class SearchFlights extends Browsersetup {
+	public SearchFlights(WebDriver driver) {
+		this.driver=driver;
+	}
+	public static void contury(WebDriver driver) {
+		locaters.con_click(driver).click();
+		locaters.con_select(driver).click();
+	}
+	public static void from(WebDriver driver) throws IOException {
+		String s1="lax";
+		writeToXl.write(0, 0,"lax");
+		locaters.From_click(driver).click();
+		locaters.From_txt(driver).sendKeys(s1);
+		locaters.From_select(driver).click();
+	}
+	public static void to(WebDriver driver) throws IOException {
+		String s1="dfw";
+		writeToXl.write(0, 1,"dfw");
+		locaters.To_click(driver).click();
+		locaters.To_txt(driver).sendKeys(s1);
+		locaters.To_select(driver).click();
+	}
+	public static void Selectdate(WebDriver driver) {
+		locaters.Departure_Date_click(driver).click();
+		String s=locaters.Present_Date(driver).getText();
+		System.out.println(s);
+		int i=0;
+		try {
+			i= Integer.parseInt(s);
+		}catch(NumberFormatException e) {
+			System.out.println(e);
+		}
+		System.out.println(i);
+		i+=5;
+		while(i>31) {
+			i=i-31;
+			
+		}
+		locaters.Select_date(driver, i).click();		
+	}
+	public static void SearchButton(WebDriver driver) {
+		locaters.Search(driver).click();
+	}
+}
+
+
+//Resultpage
+
+
+import java.io.IOException;
+
+import org.testng.Assert;
+
+import BrowserSetup.Browsersetup;
+import Locaters.locaters;
+import readXl.readFromXL;
+import readXl.writeToXl;
+public class resultspage extends Browsersetup{
+	public static  String ticket_Price() {
+		String s=null;
+		s=locaters.getTicketPrice(driver).getAttribute("value");
+	//	System.out.println(s);
+		
+		return s;
+	}
+	public static double priceValue() throws IOException {
+		double i=0;
+		String s=ticket_Price();
+		//System.out.println(s);
+		try {
+			i= Double.parseDouble(s);
+		}catch(NumberFormatException e) {
+			System.out.println(e);
+		}
+		//System.out.println(i);
+		return i;
+	}
+	public static void assertPrice() throws IOException {
+		double k=100,t=200;
+		double p=priceValue();
+		try {
+			Assert.assertTrue((p>k && p<t)?true:false);
+			writeToXl.write(0, 2,"this is passed");
+			System.out.println("this is passed");
+		}catch(AssertionError e) {
+			writeToXl.write(0,2,"this is failed");
+			System.out.println("this is failed");
+		}
+	}
+
+}
+
+//Browser Setup
+
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.ie.InternetExplorerDriver;
+
+public class Browsersetup {
+	public static WebDriver driver;
+	public static void Browser(String Browser) {
+		switch(Browser){
+		case "chrome":
+			System.setProperty("webdriver.chrome.driver",".\\drivers\\chromedriver.exe" );
+			driver= new ChromeDriver();
+			break;
+		case "firefox":
+			System.setProperty("webdriver.gecko.driver",".\\drivers\\IEDriverServer.exe" );
+			driver= new FirefoxDriver();
+			break;
+		default:
+			System.setProperty("webdriver.IE.driver",".\\drivers\\IEDriverServer.exe" );
+			driver= new InternetExplorerDriver();
+			break;
+		}
+		driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
+	}
+ public static void navigate(String URL) {
+	 driver.navigate().to(URL);
+ }
+ 
+}
+
+
+//locaters
+
+package Locaters;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+public class locaters {
+
+		public static WebElement element;
+		public static WebElement con_click(WebDriver driver ) {
+			element =driver.findElement(By.xpath("//nav/div/div/ul/ul/li/a/strong"));
+			return element;
+		}
+		public static WebElement con_select(WebDriver driver ) {
+			element =driver.findElement(By.xpath("//nav/div/div/ul/ul/li/ul/li[4]/a"));
+			return element;
+		}
+		
+		public static WebElement From_click(WebDriver driver ) {
+			element =driver.findElement(By.xpath("//div[@id='s2id_origin']/a/span[contains(text(),'Enter Location')]"));			
+			return element;
+		}
+		public static WebElement From_txt(WebDriver driver ) {
+			element =driver.findElement(By.xpath("//div[@id='select2-drop']/div/input"));
+			return element;
+		}
+		public static WebElement From_select(WebDriver driver ) {
+			element =driver.findElement(By.xpath("//*[@id=\"select2-drop\"]/ul/li[1]/div"));
+			return element;
+		}
+		public static WebElement To_click(WebDriver driver ) {
+			element =driver.findElement(By.xpath("//div[@id='s2id_destination']/a/span[contains(text(),'Enter Location')]"));
+			return element;
+		}
+		public static WebElement To_txt(WebDriver driver ) {
+			element =driver.findElement(By.xpath("//div[@id='select2-drop']/div[@class='select2-search']/input"));
+			return element;
+		}
+		public static WebElement To_select(WebDriver driver ) {
+			element =driver.findElement(By.xpath("//div[@id=\"select2-drop\"]/ul/li[1]/div"));
+			return element;
+		}
+		
+		public static WebElement Departure_Date_click(WebDriver driver ) {
+			
+			element =driver.findElement(By.xpath("//div/form/div/div/div[@class='bgfade col-md-2 form-group go-right col-xs-6 focusDateInput']/div"));
+			return element;
+		}
+		public static WebElement Present_Date(WebDriver driver ) {
+			element =driver.findElement(By.xpath("//div[@class='datepicker dropdown-menu']/div/table/tbody/tr/td[@class='day  active']"));
+			return element;
+		}
+       public static WebElement Select_date(WebDriver driver,int i ) {
+			
+			element =driver.findElement(By.xpath("//div[@class='datepicker dropdown-menu']/div/table/tbody/tr/td[contains(text(),'"+i+"')][@class='day ']"));
+			return element;
+		}
+		public static WebElement Search(WebDriver driver ) {
+			element =driver.findElement(By.xpath("//div[@class='bgfade col-md-1 col-xs-12 search-button']/button"));
+			return element;
+		}
+		public static WebElement getTicketPrice(WebDriver driver ) {
+			element =driver.findElement(By.xpath("//span[@class='pull-right']/input[3][@name='total_with_commission']"));
+			return element;
+		}
+		
+	}
+
+
+
+//Write to excel sheet
+
+package readXl;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+public class writeToXl {
+	static String filePath=System.getProperty("user.dir")+".\\xlfiles\\write.xlsx";
+	public static void write(int row,int col,String a)throws IOException{ 
+		 try {
+	            FileInputStream file = new FileInputStream(filePath);
+
+	            XSSFWorkbook workbook = new XSSFWorkbook(file);
+	            XSSFSheet sheet = workbook.getSheetAt(0);
+	            Cell cell = null;
+
+	            //Retrieve the row and check for null
+	            XSSFRow sheetrow = sheet.getRow(row);
+	            if(sheetrow == null){
+	                sheetrow = sheet.createRow(row);
+	            }
+	            //Update the value of cell
+	            cell = sheetrow.getCell(col);
+	            if(cell == null){
+	                cell = sheetrow.createCell(col);
+	            }
+	            cell.setCellValue(a);
+
+	            file.close();
+
+	            FileOutputStream outFile =new FileOutputStream(new File(filePath));
+	            workbook.write(outFile);
+	            outFile.close();
+
+	        } catch (FileNotFoundException e) {
+	            e.printStackTrace();
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	    }
+}
+
+
+//Take ScreenShot
+
+import java.io.File;
+
+import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+
+public class screenShot {
+	 public static void takeSnapShot(WebDriver webdriver,String fileWithpath) throws Exception
+	    {
+	  	  //convert Web driver object to TakeScreenShot
+	  	  TakesScreenshot scrShot=((TakesScreenshot)webdriver);
+	  	  //call getScreenshotAs method to create image file 
+	  	  File SrcFile=scrShot.getScreenshotAs(OutputType.FILE);
+	  	  File DestFile=new File(fileWithpath);
+	  	  FileUtils.copyFile(SrcFile, DestFile);
+	  	  
+	  	  
+	    }
+
+}
+
+
+//test case (testng file)
+
+import org.testng.annotations.Test;
+
+import Applicationmain.SearchFlights;
+import Applicationmain.resultspage;
+import BrowserSetup.Browsersetup;
+import screenShot.screenShot;
+
+import java.io.FileInputStream;
+import java.util.Properties;
+
+import org.testng.annotations.BeforeTest;
+
+public class NewTest extends Browsersetup  {
+	@Test//(dataProvider = "dp")
+  public void f() throws Exception {
+		SearchFlights.contury(driver);
+		Thread.sleep(5000);
+		SearchFlights.from(driver);
+		SearchFlights.to(driver);
+		SearchFlights.Selectdate(driver);
+		Thread.sleep(5000);
+		SearchFlights.SearchButton(driver);
+		screenShot.takeSnapShot(driver,System.getProperty("user.dir")+"\\pics\\SearchResult.png"); 
+		resultspage.assertPrice();
+		  
+  }
+  @BeforeTest
+  public void beforeTest() throws Exception {
+	  Properties obj=new Properties();
+	  FileInputStream Objfile = new FileInputStream(System.getProperty("user.dir")+"\\Application.properties");
+	  obj.load(Objfile);
+	  String brows=obj.getProperty("browser");
+	  String url=obj.getProperty("baseUrl");
+	  Browsersetup.Browser(brows);
+	  Browsersetup.navigate(url); 
+  }
+
+}
